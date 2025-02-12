@@ -25,7 +25,7 @@ interface ThemeProviderProps {
 const isClient = typeof window !== 'undefined'
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>('light') // causes issues with SSR and hydration of brewery list suspense :/
 
   useEffect(() => {
     if (isClient) {
