@@ -1,7 +1,6 @@
 import { json, type MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { useState } from 'react'
-import { BreweryCard } from '~/components/BreweryCard'
+import { lazy, Suspense, useState } from 'react'
 import { SearchForm } from '~/components/SearchForm'
 import type { Brewery } from '~/types/brewery'
 
@@ -9,11 +8,24 @@ export const meta: MetaFunction = () => {
   return [{ title: 'Brewery Finder - Discover Great Breweries' }, { description: 'Find and explore breweries across the United States' }]
 }
 
+const BreweryList = lazy(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+  return import('../components/BreweryList')
+})
+
 export async function loader() {
   const response = await fetch('https://api.openbrewerydb.org/v1/breweries')
   const breweries = (await response.json()) as Brewery[]
   return json({ breweries })
 }
+
+const LoadingGrid = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg p-6 h-48"></div>
+    ))}
+  </div>
+)
 
 export default function Index() {
   const { breweries } = useLoaderData<typeof loader>()
@@ -25,11 +37,9 @@ export default function Index() {
 
       <SearchForm setSearchResults={setSearchResults} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        {searchResults.map((brewery) => (
-          <BreweryCard key={brewery.id} brewery={brewery} />
-        ))}
-      </div>
+      <Suspense fallback={<LoadingGrid />}>
+        <BreweryList searchResults={searchResults} />
+      </Suspense>
     </div>
   )
 }
