@@ -66,7 +66,8 @@ export default function Index() {
         })
         return import('../components/BreweryList')
       }),
-    [noMoreError]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchResults, noMoreError]
   )
 
   return (
