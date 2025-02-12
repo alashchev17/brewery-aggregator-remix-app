@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 type Theme = 'light' | 'dark'
 
@@ -34,8 +34,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [])
 
-  const toggleTheme = () => {
-    console.log(`[DEBUG]: toggling theme..`)
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const newTheme = prev === 'light' ? 'dark' : 'light'
       if (isClient) {
@@ -43,12 +42,15 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       }
       return newTheme
     })
-  }
+  }, [])
 
-  const value = {
-    theme,
-    toggleTheme,
-  }
+  const value = useMemo(
+    () => ({
+      theme,
+      toggleTheme,
+    }),
+    [theme, toggleTheme]
+  )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
